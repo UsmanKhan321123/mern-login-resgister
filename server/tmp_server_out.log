@@ -1,0 +1,3 @@
+[dotenv@17.2.3] injecting env (4) from .env -- tip: ⚙️  override existing env vars with { override: true }
+MongoDB connected: ac-pjfwnpi-shard-00-02.bapff7y.mongodb.net
+Server is running on port: 3001

@@ -1,5 +1,6 @@
 import User from "../models/userModel.js";
 import jwt from "jsonwebtoken";
+import { Doctor, Patient, Receptionist } from "../models/index.js";
 
 // Generate Token
 const generateToken = (id) => {
@@ -8,9 +9,47 @@ const generateToken = (id) => {
   });
 };
 
+const createRoleProfile = async (user) => {
+  const profileBase = {
+    user: user._id,
+    email: user.email,
+  };
+
+  if (user.role === "doctor") {
+    await Doctor.create({
+      ...profileBase,
+      firstName: user.username,
+      lastName: "Doctor",
+      specialty: "General",
+    });
+    return;
+  }
+
+  if (user.role === "receptionist") {
+    await Receptionist.create({
+      ...profileBase,
+      firstName: user.username,
+      lastName: "Receptionist",
+    });
+    return;
+  }
+
+  if (user.role === "patient") {
+    await Patient.create({
+      ...profileBase,
+      firstName: user.username,
+      lastName: "Patient",
+    });
+  }
+};
+
 // ================= REGISTER =================
 export const registerUser = async (req, res) => {
   try {
+    if (!req.body || typeof req.body !== "object") {
+      return res.status(400).json({ message: "Request body is missing or invalid JSON" });
+    }
+
     const { username, email, password, role } = req.body;
     if (!username || !email || !password || !role) {
       return res.status(400).json({ message: "Please provide all required fields" });
@@ -28,6 +67,13 @@ export const registerUser = async (req, res) => {
       password,
       role,
     });
+
+    try {
+      await createRoleProfile(user);
+    } catch (profileError) {
+      await User.findByIdAndDelete(user._id);
+      throw profileError;
+    }
 
     const token = generateToken(user._id);
 
@@ -47,6 +93,7 @@ export const registerUser = async (req, res) => {
       token,
     });
   } catch (error) {
+    console.error("registerUser error:", error);
     if (error?.code === 11000) {
       const duplicateField = Object.keys(error.keyPattern || {})[0] || "field";
       return res.status(400).json({
@@ -65,6 +112,10 @@ export const registerUser = async (req, res) => {
 // ================= LOGIN =================
 export const loginUser = async (req, res) => {
   try {
+    if (!req.body || typeof req.body !== "object") {
+      return res.status(400).json({ message: "Request body is missing or invalid JSON" });
+    }
+
     const { email, password } = req.body;
     if (!email || !password) {
       return res.status(400).json({ message: "Email and password are required" });
@@ -93,6 +144,7 @@ export const loginUser = async (req, res) => {
       return res.status(401).json({ message: "Invalid email or password" });
     }
   } catch (error) {
+    console.error("loginUser error:", error);
     res.status(500).json({ message: error.message });
   }
 };
