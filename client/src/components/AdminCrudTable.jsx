@@ -13,10 +13,14 @@ const AdminCrudTable = ({ title, fields, rows, onCreate, onUpdate, onDelete }) =
 
   const hasRows = useMemo(() => rows.length > 0, [rows]);
 
-  const handleCreate = (e) => {
+  const handleCreate = async (e) => {
     e.preventDefault();
-    onCreate(createForm);
-    setCreateForm(emptyForm(fields));
+    try {
+      await onCreate(createForm);
+      setCreateForm(emptyForm(fields));
+    } catch {
+      // Parent handles error state display.
+    }
   };
 
   const beginEdit = (row) => {
@@ -24,10 +28,22 @@ const AdminCrudTable = ({ title, fields, rows, onCreate, onUpdate, onDelete }) =
     setEditForm(row);
   };
 
-  const handleUpdate = () => {
-    onUpdate(editingId, editForm);
-    setEditingId(null);
-    setEditForm({});
+  const handleUpdate = async () => {
+    try {
+      await onUpdate(editingId, editForm);
+      setEditingId(null);
+      setEditForm({});
+    } catch {
+      // Parent handles error state display.
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await onDelete(id);
+    } catch {
+      // Parent handles error state display.
+    }
   };
 
   return (
@@ -122,7 +138,7 @@ const AdminCrudTable = ({ title, fields, rows, onCreate, onUpdate, onDelete }) =
                             </button>
                             <button
                               className="rounded-md bg-rose-600 text-white px-2 py-1"
-                              onClick={() => onDelete(row.id)}
+                              onClick={() => handleDelete(row.id)}
                               type="button"
                             >
                               Delete

@@ -7,6 +7,7 @@ import userRouter from "./routes/userRouter.js";
 import doctorRouter from "./routes/doctorRoutes.js";
 import receptionistRouter from "./routes/receptionistRoutes.js";
 import patientRouter from "./routes/patientRoutes.js";
+import adminRouter from "./routes/adminRoutes.js";
 
 dotenv.config();
 
@@ -30,6 +31,7 @@ app.use("/api/users", userRouter);
 app.use("/api/doctor", doctorRouter);
 app.use("/api/receptionist", receptionistRouter);
 app.use("/api/patient", patientRouter);
+app.use("/api/admin", adminRouter);
 
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });

@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const doctorSchema = new mongoose.Schema(
   {
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", unique: true },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", unique: true, sparse: true },
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
