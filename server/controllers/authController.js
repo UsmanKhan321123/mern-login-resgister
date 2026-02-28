@@ -1,6 +1,6 @@
 import User from "../models/userModel.js";
 import jwt from "jsonwebtoken";
-import { Doctor, Patient, Receptionist } from "../models/index.js";
+import { Admin, Doctor, Patient, Receptionist } from "../models/index.js";
 
 // Generate Token
 const generateToken = (id) => {
@@ -40,7 +40,18 @@ const createRoleProfile = async (user) => {
       firstName: user.username,
       lastName: "Patient",
     });
+    return;
   }
+
+  if (user.role === "admin") {
+    await Admin.create({
+      ...profileBase,
+      username: user.username,
+    });
+    return;
+  }
+
+  throw new Error(`Unsupported role: ${user.role}`);
 };
 
 // ================= REGISTER =================
