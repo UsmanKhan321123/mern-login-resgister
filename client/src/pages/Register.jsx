@@ -1,130 +1,128 @@
-import React from 'react'
-import {useState} from "react"
-import {useNavigate} from "react-router"
-import axios from "axios"
+import { useState } from "react";
+import { Link, useNavigate } from "react-router";
+import { useAuth } from "../context/AuthContext";
 
-
-const Register = ({setUser}) => {
-  let [error,setError] = useState("")
-  let [formData,setFormData] = useState({
-    email:"",
+const Register = () => {
+  const [formData, setFormData] = useState({
     username: "",
-    password : ""
-  })
-  let navigate = useNavigate()
-  let handleChange = (e)=>{
-    setFormData({...formData,[e.target.name]:e.target.value})
-  }
-  let handleSubmit = async (e)=>{
-    e.preventDefault()
-  try {
-    let res = await axios.post("/api/users/register",formData)
-    navigate("/login")
-    
-  } catch (error) {
-    setError(error.response?.data?.message)
-  }    
-  }
-  
-      return (
-     <>
-      
-      <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
-        <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-          <img
-            alt="Your Company"
-            src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500"
-            className="mx-auto h-10 w-auto"
-          />
-          <h2 className="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-600">Register your account</h2>
-        </div>
+    email: "",
+    password: "",
+    role: "patient",
+  });
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const { register } = useAuth();
+  const navigate = useNavigate();
 
-        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form action="#" method="POST" className="space-y-6" onSubmit={handleSubmit}>
-            <div>
-              <label htmlFor="username" className="block text-sm/6 font-medium text-gray-800">
-                Username
-              </label>
-              <div className="mt-2">
-                <input
-                onChange={handleChange}
-                  id="username"
-                  name="username"
-                  type="text"
-                  required
-                  value={formData.username}
-                  autoComplete="username"
-                  className="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-black outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6"
-                />
-              </div>
-            </div>
+  const handleChange = (e) => {
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
 
-           <div>
-              <label htmlFor="email" className="block text-sm/6 font-medium text-gray-800">
-                Email address
-              </label>
-              <div className="mt-2">
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  value={formData.email}
-                  autoComplete="email"
-                  onChange={handleChange}
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setSubmitting(true);
+    try {
+      const user = await register(formData);
+      navigate(`/dashboard/${user.role}`, { replace: true });
+    } catch (err) {
+      setError(err.response?.data?.message || "Registration failed");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
-                  className="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-black outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6"
-                />
-              </div>
-            </div>
+  return (
+    <div className="min-h-[calc(100vh-72px)] bg-slate-50 flex items-center justify-center px-4 py-10">
+      <div className="w-full max-w-md bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <h2 className="text-2xl font-bold text-slate-900">Create account</h2>
+        <p className="text-slate-600 mt-1">Pick a role and continue</p>
 
-            <div>
-              <div className="flex items-center justify-between">
-                <label htmlFor="password" className="block text-sm/6 font-medium text-gray-700">
-                  Password
-                </label>
-                <div className="text-sm">
-                  <a href="#" className="font-semibold text-indigo-400 hover:text-indigo-500">
-                    Forgot password?
-                  </a>
-                </div>
-              </div>
-              <div className="mt-2">
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  value={formData.password}
-                  autoComplete="current-password"
-                  onChange={handleChange}
-
-                  className="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-black outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6"
-                />
-              </div>
-            </div>
-
-            <div>
-              <button
-                type="submit"
-                className="flex w-full justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm/6 font-semibold text-black hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-              >
-                Sign up
-              </button>
-            </div>
-          </form>
-
-          <p className="mt-10 text-center text-sm/6 text-gray-700">
-            Not a member?{' '}
-            <a href="#" className="font-semibold text-indigo-400 hover:text-indigo-500">
-              Start a 14 day free trial
-            </a>
+        {error ? (
+          <p className="mt-4 text-sm text-rose-700 bg-rose-50 border border-rose-200 rounded-md px-3 py-2">
+            {error}
           </p>
-        </div>
-      </div>
-    </>
-  )
-  
-}
+        ) : null}
 
-export default Register
+        <form className="mt-5 space-y-4" onSubmit={handleSubmit}>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1" htmlFor="username">
+              Username
+            </label>
+            <input
+              id="username"
+              name="username"
+              type="text"
+              value={formData.username}
+              onChange={handleChange}
+              required
+              className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1" htmlFor="email">
+              Email
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1" htmlFor="password">
+              Password
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1" htmlFor="role">
+              Role
+            </label>
+            <select
+              id="role"
+              name="role"
+              value={formData.role}
+              onChange={handleChange}
+              className="w-full rounded-md border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+            >
+              <option value="patient">Patient</option>
+              <option value="doctor">Doctor</option>
+              <option value="receptionist">Receptionist</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <button
+            type="submit"
+            disabled={submitting}
+            className="w-full rounded-md bg-emerald-700 text-white py-2 font-medium hover:bg-emerald-600 disabled:opacity-60"
+          >
+            {submitting ? "Creating..." : "Create account"}
+          </button>
+        </form>
+
+        <p className="mt-5 text-sm text-slate-600">
+          Already registered?{" "}
+          <Link to="/login" className="font-semibold text-cyan-700 hover:text-cyan-600">
+            Login
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default Register;
+

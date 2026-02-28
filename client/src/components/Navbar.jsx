@@ -1,62 +1,38 @@
-// import React from 'react'
-// import { Link, useNavigate } from 'react-router'
-
-// const Navbar = ({user,setUser}) => {
-//   let navigate = useNavigate()
-//   let handleLogout = () =>{
-//     setUser(null)
-//     navigate("/login")
-//     localStorage.removeItem("token")
-//   }
-//   return (
-//     <nav>
-//       <div>
-//       <h3>Mern Auth</h3>
-//       </div>
-//       <div>
-//         {
-//           user ? <button onClick={handleLogout}>Logout</button> : <div>
-//             <Link to= "/login">Login</Link>
-//             <Link to="/register">Register</Link>
-//           </div>
-//         }
-//       </div>
-//     </nav>
-//   )
-// }
-
-// export default Navbar
-import React from "react";
 import { Link, useNavigate } from "react-router";
+import { useAuth } from "../context/AuthContext";
 
-const Navbar = ({ user, setUser }) => {
+const Navbar = () => {
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    setUser(null);
-    localStorage.removeItem("token");
-    navigate("/login");
+  const handleLogout = async () => {
+    await logout();
+    navigate("/login", { replace: true });
   };
 
   return (
-    <nav className="bg-white shadow-md px-6 py-4">
+    <nav className="bg-slate-900 text-white px-6 py-4">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        {/* Logo / Brand */}
-        <h3 className="text-xl font-bold text-blue-600">
-          MERN Auth
-        </h3>
+        <Link to="/" className="text-xl font-bold tracking-wide">
+          Med Portal
+        </Link>
 
-        {/* Actions */}
         <div className="flex items-center gap-4">
           {user ? (
             <>
-              <span className="text-gray-600 text-sm hidden sm:block">
-                Hi, <span className="font-medium">{user.username}</span>
+              <Link
+                to={`/dashboard/${user.role}`}
+                className="rounded-md px-3 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 transition"
+              >
+                Dashboard
+              </Link>
+              <span className="text-slate-200 text-sm hidden sm:block">
+                {user.username} ({user.role})
               </span>
 
               <button
                 onClick={handleLogout}
-                className="px-4 py-2 rounded-lg bg-red-500 text-white text-sm font-medium hover:bg-red-600 transition"
+                className="px-4 py-2 rounded-md bg-rose-600 text-sm font-medium hover:bg-rose-500 transition"
               >
                 Logout
               </button>
@@ -65,14 +41,14 @@ const Navbar = ({ user, setUser }) => {
             <>
               <Link
                 to="/login"
-                className="text-gray-700 font-medium hover:text-blue-600 transition"
+                className="text-slate-200 font-medium hover:text-white transition"
               >
                 Login
               </Link>
 
               <Link
                 to="/register"
-                className="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition"
+                className="px-4 py-2 rounded-md bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-500 transition"
               >
                 Register
               </Link>
@@ -85,3 +61,4 @@ const Navbar = ({ user, setUser }) => {
 };
 
 export default Navbar;
+

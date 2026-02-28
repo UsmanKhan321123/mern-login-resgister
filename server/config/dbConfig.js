@@ -1,13 +1,21 @@
-import mongoose from "mongoose"
+import mongoose from "mongoose";
 
-let dbConnect =  async ()=>{
+const dbConnect = async () => {
   try {
-    let connent = await mongoose.connect(process.env.MONGO_DB_URI)
-    console.log(`Mongo_DB is running on host : ${connent.connection.host}`);
-    
+    const mongoUri = process.env.MONGO_URI || process.env.MONGO_DB_URI;
+
+    if (!mongoUri) {
+      throw new Error("Missing MongoDB connection string in environment");
+    }
+
+    const connection = await mongoose.connect(mongoUri, {
+      serverSelectionTimeoutMS: 10000,
+    });
+    console.log(`MongoDB connected: ${connection.connection.host}`);
   } catch (error) {
-    console.log(error.message);
-    process.exit(1)
+    console.error(`DB connection failed: ${error.message}`);
+    process.exit(1);
   }
-}
-export default dbConnect
+};
+
+export default dbConnect;
