@@ -47,6 +47,17 @@ export const registerUser = async (req, res) => {
       token,
     });
   } catch (error) {
+    if (error?.code === 11000) {
+      const duplicateField = Object.keys(error.keyPattern || {})[0] || "field";
+      return res.status(400).json({
+        message: `${duplicateField} already exists`,
+      });
+    }
+
+    if (error?.name === "ValidationError") {
+      return res.status(400).json({ message: error.message });
+    }
+
     res.status(500).json({ message: error.message });
   }
 };
